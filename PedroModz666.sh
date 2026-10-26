@@ -1,21 +1,22 @@
 #!/data/data/com.termux/files/usr/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN AUTOMÁTICA ---
-VERSION_ACTUAL="1.2"
+VERSION_ACTUAL="1.1"
+CURL_PATH="/data/data/com.termux/files/usr/bin/curl"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt?v=$(date +%s)"
 URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh"
 # -------------------------------------------------
 
 verificar_actualizacion() {
-    VERSION_REMOTA=$(curl -s "$URL_VERSION")
+    VERSION_REMOTA=$("$CURL_PATH" -s "$URL_VERSION" | tr -d '\r' | xargs)
     
     if [ -n "$VERSION_REMOTA" ] && [ "$VERSION_ACTUAL" != "$VERSION_REMOTA" ]; then
         printf "\n\033[1;32m¡Hay una nueva actualización disponible ($VERSION_REMOTA)!\033[0m\n"
         printf "¿Deseas actualizar el script ahora? (s/n): "
-        read -r respuesta
+        read respuesta
         if [ "$respuesta" = "s" ] || [ "$respuesta" = "S" ]; then
             printf "Actualizando script...\n"
-            if curl -s -o "$0" "$URL_SCRIPT"; then
+            if "$CURL_PATH" -s -o "$0" "$URL_SCRIPT"; then
                 chmod +x "$0"
                 printf "\033[1;32m¡Actualización completada! Vuelve a abrir el script.\033[0m\n\n"
                 exit 0
@@ -32,7 +33,6 @@ verificar_actualizacion
 # --- CONFIGURACIÓN DE TELEGRAM ---
 TOKEN_BOT="8683483962:AAGHLpFhkenCuKPbo_jDSlHP5RtomhR3L4Y"
 TU_CHAT_ID="7024840116"
-CURL_PATH="/data/data/com.termux/files/usr/bin/curl"
 
 # --- VERIFICACIÓN DE VENCIMIENTO ---
 FECHA_LIMITE=20261027
