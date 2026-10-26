@@ -38,22 +38,8 @@ verificar_actualizacion
 TOKEN_BOT="8683483962:AAGHLpFhkenCuKPbo_jDSlHP5RtomhR3L4Y"
 TU_CHAT_ID="7024840116"
 
-# --- VERIFICACIÓN DE VENCIMIENTO ---
-FECHA_LIMITE=20261027
-FECHA_ACTUAL=$(date +%Y%m%d)
-
-if [ "$FECHA_ACTUAL" -gt "$FECHA_LIMITE" ]; then
-    printf "\033[1;31m======================================\n"
-    printf "        ❌ SCRIPT VENCIDO ❌          \n"
-    printf "======================================\n"
-    printf "Este script ha expirado (Duración: 1 semana).\n"
-    printf "Contacta al administrador para renovarlo:\n"
-    printf "📱 WhatsApp: +593 982954390\033[0m\n\n"
-    exit 1
-fi
-# ----------------------------------------------
-
 INTENTOS_MAXIMOS=3
+FECHA_ACTUAL=$(date +%Y%m%d)
 
 # Colores ANSI
 ROJO='\033[1;31m'
@@ -81,7 +67,7 @@ if [ -z "$DEVICE_ID" ]; then
     DEVICE_ID="DEVICE_GENERICO_$(date +%s)"
 fi
 
-# --- VERIFICACIÓN DE KEY Y VINCULACIÓN DE DISPOSITIVO ---
+# --- VERIFICACIÓN DE KEY, VINCULACIÓN Y VENCIMIENTO ---
 intentos=0
 while [ $intentos -lt $INTENTOS_MAXIMOS ]; do
     printf "${AZUL}======================================\n"
@@ -93,28 +79,43 @@ while [ $intentos -lt $INTENTOS_MAXIMOS ]; do
     # Descarga la lista de keys de GitHub
     LISTA_KEYS=$("$CURL_PATH" -s "$URL_KEYS")
     
-    # Busca la línea exacta que coincida con la key ingresada
-    LINEA_MATCH=$(echo "$LISTA_KEYS" | grep -F "$password")
+    # Busca la línea exacta que coincida con la key ingresada al inicio de la línea
+    LINEA_MATCH=$(echo "$LISTA_KEYS" | grep -E "^${password}(\\||$)")
 
     if [ -n "$password" ] && [ -n "$LINEA_MATCH" ]; then
-        # Verificamos si la key ya tiene un dispositivo vinculado (Formato: KEY|DEVICE_ID)
+        # Extraemos los campos separados por barra (|): [1]=Key, [2]=Device_ID, [3]=Fecha_Limite
         DEVICE_REGISTRADO=$(echo "$LINEA_MATCH" | cut -d'|' -f2)
+        FECHA_KEY=$(echo "$LINEA_MATCH" | cut -d'|' -f3)
 
-        if [ -z "$DEVICE_REGISTRADO" ] || [ "$DEVICE_REGISTRADO" = "$password" ]; then
-            # Primera vez que se usa: Aviso a Telegram indicando que se vinculó a este dispositivo
-            MSG_TG="✅ Key activada por primera vez: '$password' vinculada al dispositivo: $DEVICE_ID"
+        # 1. Verificamos si la key tiene fecha de vencimiento individual y si ya expiró
+        if [ -n "$FECHA_KEY" ] && [ "$FECHA_KEY" != "nunca" ] && [ "$FECHA_KEY" -eq "$FECHA_KEY" ] 2>/dev/null; then
+            if [ "$FECHA_ACTUAL" -gt "$FECHA_KEY" ]; then
+                MSG_TG="⚠️ Intento con Key VENCIDA: '$password' (Expiró el $FECHA_KEY). Dispositivo: $DEVICE_ID"
+                "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
+                    -d "chat_id=$TU_CHAT_ID" \
+                    -d "text=$MSG_TG" > /dev/null 2>&1
+
+                printf "\n${ROJO}[✖] Esta Key ha VENCIDO (Fecha límite: $FECHA_KEY).${RESET}\n"
+                printf "${AMARILLO}Contacta a PedroModz666 para renovarla.${RESET}\n\n"
+                exit 1
+            fi
+        fi
+
+        # 2. Verificamos el bloqueo por dispositivo único
+        if [ -z "$DEVICE_REGISTRADO" ]; then
+            # Primera vez que se usa: Notificamos para que la amarres en GitHub
+            MSG_TG="🔥 NUEVO REGISTRO: Key '$password' usada en dispositivo ID: $DEVICE_ID\n\nActualiza tu GitHub con:\n$password|$DEVICE_ID|$FECHA_KEY"
             "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
                 -d "chat_id=$TU_CHAT_ID" \
                 -d "text=$MSG_TG" > /dev/null 2>&1
 
-            printf "\n${VERDE}[✔] ¡Licencia vinculada a tu dispositivo y aceptada!${RESET}\n"
-            printf "${CYAN}ID de tu equipo registrado: $DEVICE_ID${RESET}\n"
-            printf "${AMARILLO}[!] Copia este ID y envíaselo a PedroModz666 si necesitas soporte.${RESET}\n\n"
+            printf "\n${VERDE}[✔] ¡Licencia aceptada y vinculada a tu equipo!${RESET}\n"
+            printf "${CYAN}Tu ID registrado: $DEVICE_ID${RESET}\n\n"
             sleep 2
             break
         elif [ "$DEVICE_REGISTRADO" = "$DEVICE_ID" ]; then
-            # El dispositivo coincide perfectamente
-            MSG_TG="✅ Key correcta usada: '$password'"
+            # Dispositivo autorizado correctamente
+            MSG_TG="✅ Key correcta usada: '$password' (Dispositivo autorizado)"
             "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
                 -d "chat_id=$TU_CHAT_ID" \
                 -d "text=$MSG_TG" > /dev/null 2>&1
@@ -123,8 +124,8 @@ while [ $intentos -lt $INTENTOS_MAXIMOS ]; do
             sleep 1
             break
         else
-            # La key está siendo usada en OTRO teléfono diferente
-            MSG_TG="🚨 ALERTA: Intentaron usar la key '$password' en un dispositivo no autorizado. ID intruso: $DEVICE_ID (Original: $DEVICE_REGISTRADO)"
+            # Intento de uso en un segundo teléfono no autorizado
+            MSG_TG="🚨 ALERTA INTRUSO: Intentaron usar la key '$password' en otro celular.\n📱 ID Intruso: $DEVICE_ID\n📱 ID Autorizado: $DEVICE_REGISTRADO"
             "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
                 -d "chat_id=$TU_CHAT_ID" \
                 -d "text=$MSG_TG" > /dev/null 2>&1
@@ -138,7 +139,6 @@ while [ $intentos -lt $INTENTOS_MAXIMOS ]; do
         restantes=$((INTENTOS_MAXIMOS - intentos))
         
         MSG_TG="⚠️ Key inválida intentada: '$password' (Restantes: $restantes). Dispositivo: $DEVICE_ID"
-        
         "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
             -d "chat_id=$TU_CHAT_ID" \
             -d "text=$MSG_TG" > /dev/null 2>&1
@@ -155,8 +155,8 @@ while [ $intentos -lt $INTENTOS_MAXIMOS ]; do
         if [ $intentos -eq $INTENTOS_MAXIMOS ]; then
             MSG_TG="🚫 Script bloqueado por exceder intentos de keys inválidas."
             "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
-            -d "chat_id=$TU_CHAT_ID" \
-            -d "text=$MSG_TG" > /dev/null 2>&1
+                -d "chat_id=$TU_CHAT_ID" \
+                -d "text=$MSG_TG" > /dev/null 2>&1
 
             printf "${ROJO}[!] Demasiados intentos fallidos. Saliendo...${RESET}\n\n"
             exit 1
