@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN AUTOMÁTICA ---
-VERSION_ACTUAL="1.1"
+VERSION_ACTUAL="1.2"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt?v=$(date +%s)"
 URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh"
 # -------------------------------------------------
