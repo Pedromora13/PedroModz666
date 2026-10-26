@@ -1,9 +1,46 @@
 #!/data/data/com.termux/files/usr/bin/sh
 
+# --- CONFIGURACIÓN DE ACTUALIZACIÓN ONLINE ---
+# 1. Pon aquí la versión actual de este script:
+VERSION_ACTUAL="1.6"
+
+CURL_PATH="/data/data/com.termux/files/usr/bin/curl"
+URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt?v=$(date +%s)"
+URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh"
+# ---------------------------------------------
+
+verificar_actualizacion() {
+    # Descargar y limpiar completamente cualquier espacio o salto de línea fantasma
+    VERSION_REMOTA=$("$CURL_PATH" -s "$URL_VERSION" | tr -d '\r' | tr -d '\n' | xargs)
+    
+    # Si la versión remota existe y es DIFERENTE a la local, obliga a actualizar
+    if [ -n "$VERSION_REMOTA" ] && [ "$VERSION_ACTUAL" != "$VERSION_REMOTA" ]; then
+        printf "\n\033[1;31m¡Nueva actualización obligatoria disponible ($VERSION_REMOTA)!\033[0m\n"
+        printf "¿Deseas actualizar ahora? (s/n): "
+        read respuesta
+        if [ "$respuesta" = "s" ] || [ "$respuesta" = "S" ]; then
+            printf "Actualizando script...\n"
+            if "$CURL_PATH" -s -o "$0" "$URL_SCRIPT"; then
+                chmod +x "$0"
+                printf "\033[1;32m¡Actualización completada! Vuelve a abrir el script.\033[0m\n\n"
+                exit 0
+            else
+                printf "\033[1;31mError al descargar la actualización.\033[0m\n"
+                exit 1
+            fi
+        else
+            printf "\n\033[1;31m[!] Debes actualizar para usar el script. Saliendo...\033[0m\n\n"
+            exit 0
+        fi
+    fi
+}
+
+# Ejecutar verificación de actualización al iniciar
+verificar_actualizacion
+
 # --- CONFIGURACIÓN DE TELEGRAM ---
 TOKEN_BOT="8683483962:AAGHLpFhkenCuKPbo_jDSlHP5RtomhR3L4Y"
 TU_CHAT_ID="7024840116"
-CURL_PATH="/data/data/com.termux/files/usr/bin/curl"
 
 # --- VERIFICACIÓN DE VENCIMIENTO ---
 FECHA_LIMITE=20261027
