@@ -1,8 +1,8 @@
 #!/data/data/com.termux/files/usr/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN AUTOMÁTICA ---
-# IMPORTANTE: Cambia este número cada vez que lances una nueva versión a GitHub (ej: "1.2", "1.3", etc.)
-VERSION_ACTUAL="1.5"
+# IMPORTANTE: Cambia este número cada vez que lances una nueva versión a GitHub
+VERSION_ACTUAL="1.1"
 CURL_PATH="/data/data/com.termux/files/usr/bin/curl"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt?v=$(date +%s)"
 URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh"
@@ -12,8 +12,8 @@ verificar_actualizacion() {
     VERSION_REMOTA=$("$CURL_PATH" -s "$URL_VERSION" | tr -d '\r' | xargs)
     
     if [ -n "$VERSION_REMOTA" ] && [ "$VERSION_ACTUAL" != "$VERSION_REMOTA" ]; then
-        printf "\n\033[1;32m¡Hay una nueva actualización disponible ($VERSION_REMOTA)!\033[0m\n"
-        printf "¿Deseas actualizar el script ahora? (s/n): "
+        printf "\n\033[1;31m¡Actualización obligatoria disponible ($VERSION_REMOTA)!\033[0m\n"
+        printf "¿Deseas actualizar ahora para continuar? (s/n): "
         read respuesta
         if [ "$respuesta" = "s" ] || [ "$respuesta" = "S" ]; then
             printf "Actualizando script...\n"
@@ -23,12 +23,16 @@ verificar_actualizacion() {
                 exit 0
             else
                 printf "\033[1;31mError al descargar la actualización.\033[0m\n"
+                exit 1
             fi
+        else
+            printf "\n\033[1;31m[!] Debes actualizar el script para poder usarlo. Saliendo...\033[0m\n\n"
+            exit 0
         fi
     fi
 }
 
-# Ejecutar verificación de actualización al iniciar
+# Ejecutar verificación de actualización al iniciar (Obligatoria)
 verificar_actualizacion
 
 # --- CONFIGURACIÓN DE TELEGRAM ---
@@ -112,8 +116,8 @@ while [ $intentos -lt $INTENTOS_MAXIMOS ]; do
         if [ $intentos -eq $INTENTOS_MAXIMOS ]; then
             MSG_TG="🚫 Script bloqueado por exceder intentos de clave."
             "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
-                -d "chat_id=$TU_CHAT_ID" \
-                -d "text=$MSG_TG" > /dev/null 2>&1
+            -d "chat_id=$TU_CHAT_ID" \
+            -d "text=$MSG_TG" > /dev/null 2>&1
 
             printf "${ROJO}[!] Demasiados intentos fallidos. Saliendo...${RESET}\n\n"
             exit 1
