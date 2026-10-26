@@ -34,47 +34,6 @@ verificar_actualizacion() {
 # Ejecutar verificación de actualización al iniciar
 verificar_actualizacion
 
-# --- DESCARGA AUTOMÁTICA DE ARCHIVOS SUELTOS ---
-verificar_y_descargar_recursos() {
-    printf "\n\033[1;36m[i] Verificando y descargando archivos necesarios...\033[0m\n"
-
-    DIR_ORI="/storage/emulated/0/PedroModz666/Ori"
-    DIR_PECHO="/storage/emulated/0/PedroModz666/Pecho"
-    DIR_CUELLO="/storage/emulated/0/PedroModz666/Cuello"
-
-    mkdir -p "$DIR_ORI"
-    mkdir -p "$DIR_PECHO"
-    mkdir -p "$DIR_CUELLO"
-
-    FILE_ORI="$DIR_ORI/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
-    FILE_PECHO="$DIR_PECHO/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
-    FILE_CUELLO="$DIR_CUELLO/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
-
-    URL_ORI="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Ori/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D?raw=true"
-    URL_PECHO="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Pecho/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D?raw=true"
-    URL_CUELLO="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Cuello/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D?raw=true"
-
-    if [ ! -f "$FILE_ORI" ] || [ ! -s "$FILE_ORI" ]; then
-        printf "${AMARILLO}[-] Descargando archivo Original (Espere)...${RESET}\n"
-        "$CURL_PATH" -L -o "$FILE_ORI" "$URL_ORI"
-    fi
-
-    if [ ! -f "$FILE_PECHO" ] || [ ! -s "$FILE_PECHO" ]; then
-        printf "${AMARILLO}[-] Descargando archivo Aimbot Pecho (Espere)...${RESET}\n"
-        "$CURL_PATH" -L -o "$FILE_PECHO" "$URL_PECHO"
-    fi
-
-    if [ ! -f "$FILE_CUELLO" ] || [ ! -s "$FILE_CUELLO" ]; then
-        printf "${AMARILLO}[-] Descargando archivo Aimbot Cuello (Espere)...${RESET}\n"
-        "$CURL_PATH" -L -o "$FILE_CUELLO" "$URL_CUELLO"
-    fi
-
-    printf "${VERDE}[✔] ¡Verificación de recursos completa!${RESET}\n\n"
-}
-
-# Ejecutar la verificación y descarga de recursos
-verificar_y_descargar_recursos
-
 # --- CONFIGURACIÓN DE TELEGRAM ---
 TOKEN_BOT="8683483962:AAGHLpFhkenCuKPbo_jDSlHP5RtomhR3L4Y"
 TU_CHAT_ID="7024840116"
@@ -105,7 +64,11 @@ AMARILLO='\033[1;33m'
 CYAN='\033[0;36m'
 RESET='\033[0m'
 
-# --- RUTAS DE DESTINO FINAL (JUEGO) ---
+# --- RUTAS DE ARCHIVOS Y DESTINO ---
+FILE_ORI="/storage/emulated/0/PedroModz666/Ori/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+FILE_PECHO="/storage/emulated/0/PedroModz666/Pecho/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+FILE_CUELLO="/storage/emulated/0/PedroModz666/Cuello/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+
 DESTINO="/data/user/0/com.dts.freefiremax/files/contentcache/Compulsory/android/gameassetbundles/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
 
 clear
@@ -183,7 +146,7 @@ while true; do
                 cat "$FILE_ORI" > "$DESTINO"
                 printf "${VERDE}[✔] ¡Bypass Active Disfruta!${RESET}\n"
             else
-                printf "\n${ROJO}[!] Error: No existe el archivo en la ruta Original.${RESET}\n"
+                printf "\n${ROJO}[!] Error: No se encuentra el archivo en /storage/emulated/0/PedroModz666/Ori/${RESET}\n"
             fi
             ;;
         2)
@@ -192,7 +155,7 @@ while true; do
                 cat "$FILE_PECHO" > "$DESTINO"
                 printf "${VERDE}[✔] ¡Aim Pecho aplicado con éxito!${RESET}\n"
             else
-                printf "\n${ROJO}[!] Error: No existe el archivo en la ruta Pecho.${RESET}\n"
+                printf "\n${ROJO}[!] Error: No se encuentra el archivo en /storage/emulated/0/PedroModz666/Pecho/${RESET}\n"
             fi
             ;;
         3)
@@ -201,7 +164,7 @@ while true; do
                 cat "$FILE_CUELLO" > "$DESTINO"
                 printf "${VERDE}[✔] ¡Aim Cuello aplicado con éxito!${RESET}\n"
             else
-                printf "\n${ROJO}[!] Error: No existe el archivo en la ruta Cuello.${RESET}\n"
+                printf "\n${ROJO}[!] Error: No se encuentra el archivo en /storage/emulated/0/PedroModz666/Cuello/${RESET}\n"
             fi
             ;;
         4)
