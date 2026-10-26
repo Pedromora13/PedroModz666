@@ -36,47 +36,40 @@ verificar_actualizacion
 
 # --- DESCARGA AUTOMÁTICA DE ARCHIVOS SUELTOS ---
 verificar_y_descargar_recursos() {
-    printf "\n\033[1;36m[i] Verificando archivos del sistema...\033[0m\n"
+    printf "\n\033[1;36m[i] Verificando y descargando archivos necesarios...\033[0m\n"
 
-    # 1. Definir carpetas de destino con tu nombre
     DIR_ORI="/storage/emulated/0/PedroModz666/Ori"
     DIR_PECHO="/storage/emulated/0/PedroModz666/Pecho"
-    DIR_CUELLO="/storage/emulated/0/PedroModz666/cuello"
+    DIR_CUELLO="/storage/emulated/0/PedroModz666/Cuello"
 
-    # Crear carpetas si no existen
     mkdir -p "$DIR_ORI"
     mkdir -p "$DIR_PECHO"
     mkdir -p "$DIR_CUELLO"
 
-    # 2. Rutas locales de los archivos
     FILE_ORI="$DIR_ORI/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
     FILE_PECHO="$DIR_PECHO/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
     FILE_CUELLO="$DIR_CUELLO/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
 
-    # 3. Enlaces remotos en tu GitHub
     URL_ORI="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Ori/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
     URL_PECHO="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Pecho/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
     URL_CUELLO="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Cuello/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
 
-    # Descargar Original si no existe
-    if [ ! -f "$FILE_ORI" ]; then
-        printf "${AMARILLO}[-] Descargando archivo Original...${RESET}\n"
-        "$CURL_PATH" -s -o "$FILE_ORI" "$URL_ORI"
+    if [ ! -f "$FILE_ORI" ] || [ ! -s "$FILE_ORI" ]; then
+        printf "${AMARILLO}[-] Descargando archivo Original (Espere)...${RESET}\n"
+        "$CURL_PATH" -L -o "$FILE_ORI" "$URL_ORI"
     fi
 
-    # Descargar Pecho si no existe
-    if [ ! -f "$FILE_PECHO" ]; then
-        printf "${AMARILLO}[-] Descargando archivo Aimbot Pecho...${RESET}\n"
-        "$CURL_PATH" -s -o "$FILE_PECHO" "$URL_PECHO"
+    if [ ! -f "$FILE_PECHO" ] || [ ! -s "$FILE_PECHO" ]; then
+        printf "${AMARILLO}[-] Descargando archivo Aimbot Pecho (Espere)...${RESET}\n"
+        "$CURL_PATH" -L -o "$FILE_PECHO" "$URL_PECHO"
     fi
 
-    # Descargar Cuello si no existe
-    if [ ! -f "$FILE_CUELLO" ]; then
-        printf "${AMARILLO}[-] Descargando archivo Aimbot Cuello...${RESET}\n"
-        "$CURL_PATH" -s -o "$FILE_CUELLO" "$URL_CUELLO"
+    if [ ! -f "$FILE_CUELLO" ] || [ ! -s "$FILE_CUELLO" ]; then
+        printf "${AMARILLO}[-] Descargando archivo Aimbot Cuello (Espere)...${RESET}\n"
+        "$CURL_PATH" -L -o "$FILE_CUELLO" "$URL_CUELLO"
     fi
 
-    printf "${VERDE}[✔] ¡Archivos listos y verificados!${RESET}\n\n"
+    printf "${VERDE}[✔] ¡Verificación de recursos completa!${RESET}\n\n"
 }
 
 # Ejecutar la verificación y descarga de recursos
