@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN ONLINE ---
-VERSION_ACTUAL="1.1.7"
+VERSION_ACTUAL="1.1.8"
 CURL_PATH="/data/data/com.termux/files/usr/bin/curl"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt?v=$(date +%s)"
 URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh?v=$(date +%s)"
