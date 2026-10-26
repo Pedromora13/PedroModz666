@@ -50,9 +50,9 @@ verificar_y_descargar_recursos() {
     FILE_PECHO="$DIR_PECHO/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
     FILE_CUELLO="$DIR_CUELLO/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
 
-    URL_ORI="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Ori/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
-    URL_PECHO="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Pecho/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
-    URL_CUELLO="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Cuello/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+    URL_ORI="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Ori/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D?raw=true"
+    URL_PECHO="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Pecho/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D?raw=true"
+    URL_CUELLO="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/recursos/Cuello/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D?raw=true"
 
     if [ ! -f "$FILE_ORI" ] || [ ! -s "$FILE_ORI" ]; then
         printf "${AMARILLO}[-] Descargando archivo Original (Espere)...${RESET}\n"
