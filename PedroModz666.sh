@@ -2,7 +2,7 @@
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN AUTOMÁTICA ---
 VERSION_ACTUAL="1.1"
-URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt"
+URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt?v=$(date +%s)"
 URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh"
 # -------------------------------------------------
 
