@@ -1,6 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN AUTOMÁTICA ---
+# IMPORTANTE: Cambia este número cada vez que lances una nueva versión a GitHub (ej: "1.2", "1.3", etc.)
 VERSION_ACTUAL="1.5"
 CURL_PATH="/data/data/com.termux/files/usr/bin/curl"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt?v=$(date +%s)"
