@@ -49,8 +49,8 @@ if [ "$FECHA_ACTUAL" -gt "$FECHA_LIMITE" ]; then
 fi
 # ----------------------------------------------
 
-PASSWORD_CORRECTA="1"
-INTENTOS_MAXIMOS=3
+PASSWORD_CORRECTA="666"
+INTENTOS_MAXIMOS=2
 
 # Colores ANSI
 ROJO='\033[1;31m'
@@ -61,9 +61,9 @@ CYAN='\033[0;36m'
 RESET='\033[0m'
 
 # --- RUTAS DE ORIGEN Y DESTINO ---
-ORIGEN_ORIGINAL="/storage/emulated/0/Caleb/Ori/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
-ORIGEN_AIMBOT="/storage/emulated/0/Caleb/Pecho/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
-ORIGEN_CUELLO="/storage/emulated/0/Caleb/cuello/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+ORIGEN_ORIGINAL="/storage/emulated/0/PedroModz666/Ori/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+ORIGEN_AIMBOT="/storage/emulated/0/PedroModz666/Pecho/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
+ORIGEN_CUELLO="/storage/emulated/0/PedroModz666/cuello/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
 
 DESTINO="/data/user/0/com.dts.freefiremax/files/contentcache/Compulsory/android/gameassetbundles/cache_res.0fNB3oXqZOJRyvBVnID6F8UK2IM~3D"
 
