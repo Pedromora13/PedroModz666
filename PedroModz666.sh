@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN ONLINE ---
-VERSION_ACTUAL="1.2.1"
+VERSION_ACTUAL="1.2.2"
 CURL_PATH="/data/data/com.termux/files/usr/bin/curl"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt?v=$(date +%s)"
 URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh?v=$(date +%s)"
@@ -12,7 +12,7 @@ verificar_actualizacion() {
     VERSION_REMOTA=$("$CURL_PATH" -s "$URL_VERSION" | tr -d '\r' | tr -d '\n' | xargs)
     
     if [ -n "$VERSION_REMOTA" ] && [ "$VERSION_ACTUAL" != "$VERSION_REMOTA" ]; then
-        printf "\n\033[1;31m¡Nueva actualización obligatoria disponible ($VERSION_REMOTA)!\033[0m\n"
+        printf "\n\033[1;31m¡Nueva actualización disponible ($VERSION_REMOTA)!\033[0m\n"
         printf "¿Deseas actualizar ahora? (s/n): "
         read respuesta
         if [ "$respuesta" = "s" ] || [ "$respuesta" = "S" ]; then
@@ -26,7 +26,7 @@ verificar_actualizacion() {
                 exit 1
             fi
         else
-            printf "\n\033[1;31m[!] Debes actualizar para usar el script. Saliendo...\033[0m\n\n"
+            printf "\n\033[1;31m[!] Debes actualizar el script. Saliendo...\033[0m\n\n"
             exit 0
         fi
     fi
@@ -104,7 +104,7 @@ while [ $intentos -lt $INTENTOS_MAXIMOS ]; do
 
         printf "\n${ROJO}[✖] Key inválida. Intentos restantes: $restantes${RESET}\n\n"
         if [ $intentos -eq $INTENTOS_MAXIMOS ]; then
-            MSG_TG="🚫 Script bloqueado por exceder intentos de keys inválidas."
+            MSG_TG="🚫 Script bloqueado por exceder intentos."
             "$CURL_PATH" -s -X POST "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" -d "chat_id=$TU_CHAT_ID" -d "text=$MSG_TG" > /dev/null 2>&1
 
             printf "${ROJO}[!] Demasiados intentos fallidos. Saliendo...${RESET}\n\n"
@@ -120,9 +120,9 @@ while true; do
     clear
     printf "${AZUL}======================================\n"
     printf "${VERDE}             PedroModz666             \n"
-    printf "${CYAN}     Contacto: +593 982954390        \n"
+    printf "${CYAN}     Contacto: +593 986520417        \n"
     printf "${AZUL}======================================\n"
-    printf "${AMARILLO}        1)${RESET} Original\n"
+    printf "${AMARILLO}        1)${RESET} Bypass Avion\n"
     printf "${AMARILLO}        2)${RESET} Aimbot Pecho\n"
     printf "${AMARILLO}        3)${RESET} Aimbot Cuello\n"
     printf "${AMARILLO}        4)${RESET} Salir\n"
@@ -133,33 +133,33 @@ while true; do
     case "$opcion" in
         1)
             if [ -f "$FILE_ORI" ]; then
-                printf "\n${CYAN}Inyectando Original...${RESET}\n"
+                printf "\n${CYAN}Inyectando Bypass...${RESET}\n"
                 cat "$FILE_ORI" > "$DESTINO"
                 printf "${VERDE}[✔] ¡Bypass Active Disfruta!${RESET}\n"
             else
-                printf "\n${ROJO}[!] Error: No se encuentra el archivo en Ori/${RESET}\n"
+                printf "\n${ROJO}[!] Error: No se encuentra el archivo Bypass/${RESET}\n"
             fi
             ;;
         2)
             if [ -f "$FILE_PECHO" ]; then
-                printf "\n${CYAN}Inyectando Aim Pecho...${RESET}\n"
+                printf "\n${CYAN}Inyectando Aimbot...${RESET}\n"
                 cat "$FILE_PECHO" > "$DESTINO"
-                printf "${VERDE}[✔] ¡Aim Pecho aplicado con éxito!${RESET}\n"
+                printf "${VERDE}[✔] ¡Aimbot Pecho aplicado con éxito!${RESET}\n"
             else
                 printf "\n${ROJO}[!] Error: No se encuentra el archivo en Pecho/${RESET}\n"
             fi
             ;;
         3)
             if [ -f "$FILE_CUELLO" ]; then
-                printf "\n${CYAN}IngetYectando Aim Cuello...${RESET}\n"
+                printf "\n${CYAN}Inyectando Aimbot Cuello...${RESET}\n"
                 cat "$FILE_CUELLO" > "$DESTINO"
-                printf "${VERDE}[✔] ¡Aim Cuello aplicado con éxito!${RESET}\n"
+                printf "${VERDE}[✔] ¡Aimbot Cuello aplicado con éxito!${RESET}\n"
             else
                 printf "\n${ROJO}[!] Error: No se encuentra el archivo en Cuello/${RESET}\n"
             fi
             ;;
         4)
-            printf "\n${CYAN}Saliendo del script. ¡Hasta luego, crack!${RESET}\n\n"
+            printf "\n${CYAN}Saliendo. ¡Hasta luego, crack!${RESET}\n\n"
             exit 0
             ;;
         *)
