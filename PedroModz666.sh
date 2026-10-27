@@ -1,7 +1,7 @@
 #!/data/data/com.termux/files/usr/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN ONLINE ---
-VERSION_ACTUAL="1.2.0"
+VERSION_ACTUAL="1.2.1"
 CURL_PATH="/data/data/com.termux/files/usr/bin/curl"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt?v=$(date +%s)"
 URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh?v=$(date +%s)"
@@ -70,9 +70,9 @@ fi
 intentos=0
 while [ $intentos -lt $INTENTOS_MAXIMOS ]; do
     printf "${AZUL}======================================\n"
-    printf "${VERDE}        🔐 ACCESO CON LICENCIA 🔐       \n"
+    printf "${VERDE}        🔐 INGRESA TU LICENCIA 🔐       \n"
     printf "${AZUL}======================================${RESET}\n"
-    printf "${AMARILLO}Ingresa tu Key o Licencia: ${RESET}"
+    printf "${AMARILLO}Ingresa tu Licencia: ${RESET}"
     read password
 
     # Descarga la lista de keys de GitHub limpia
