@@ -32,7 +32,7 @@ enviar_web() {
         return 0
     fi
 
-    # Intentar con busybox wget directamente si está en el PATH
+    # Intentar con busybox wget directamente si está en el PATH o rutas comunes
     if busybox wget --help >/dev/null 2>&1; then
         if [ -n "$data" ]; then
             busybox wget -qO- --post-data="$data" "$url"
@@ -117,18 +117,18 @@ while [ "$intentos" -lt "$INTENTOS_MAXIMOS" ]; do
     printf "${AMARILLO}Ingresa tu Licencia: ${RESET}"
     read password
 
-    # Descarga la lista de keys de GitHub limpia
-    LISTA_KEYS=$(enviar_web "$URL_KEYS?v=$(date +%s)" "" | tr -d '\r')
+    # Descarga la lista y limpia retornos de carro y espacios extra
+    LISTA_KEYS=$(enviar_web "$URL_KEYS?v=$(date +%s)" "" | tr -d '\r' | xargs)
 
     if [ -z "$LISTA_KEYS" ]; then
         printf "\n${ROJO}[!] Error: No hay conexión a internet o herramientas de red.${RESET}\n"
         exit 1
     fi
     
-    # Búsqueda segura de la key ignorando espacios vacíos
+    # Comprobación estricta buscando la key exacta dentro de la lista descargada
     KEY_ENCONTRADA=0
-    for key_val in $LISTA_KEYS; do
-        if [ "$password" = "$key_val" ]; then
+    for k in $LISTA_KEYS; do
+        if [ "$password" = "$k" ]; then
             KEY_ENCONTRADA=1
             break
         fi
