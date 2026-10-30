@@ -7,12 +7,12 @@ URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/Pedr
 URL_KEYS="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/keys.txt"
 # ---------------------------------------------
 
-# Función universal mejorada para peticiones web en Android / MT Manager
+# Función universal ultra compatible para Android / MT Manager
 enviar_web() {
     local url="$1"
     local data="$2"
     
-    # Intentar con curl
+    # 1. Intentar con curl
     if command -v curl >/dev/null 2>&1; then
         if [ -n "$data" ]; then
             curl -s -X POST "$url" -d "$data"
@@ -22,7 +22,7 @@ enviar_web() {
         return 0
     fi
 
-    # Intentar con wget estándar
+    # 2. Intentar con wget estándar
     if command -v wget >/dev/null 2>&1; then
         if [ -n "$data" ]; then
             wget -qO- --post-data="$data" "$url"
@@ -32,7 +32,7 @@ enviar_web() {
         return 0
     fi
 
-    # Intentar con busybox wget directamente si está en el PATH o rutas comunes
+    # 3. Intentar con busybox wget
     if busybox wget --help >/dev/null 2>&1; then
         if [ -n "$data" ]; then
             busybox wget -qO- --post-data="$data" "$url"
@@ -53,6 +53,12 @@ enviar_web() {
         else
             /system/bin/busybox wget -qO- "$url"
         fi
+        return 0
+    fi
+
+    # 4. Toybox wget alternativo para Android
+    if command -v toybox >/dev/null 2>&1; then
+        toybox wget -qO- "$url" 2>/dev/null
         return 0
     fi
 }
