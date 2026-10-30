@@ -1,62 +1,70 @@
 #!/system/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN ONLINE ---
-VERSION_ACTUAL="1.2.6"
+VERSION_ACTUAL="1.2.5"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt"
 URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh"
 URL_KEYS="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/keys.txt"
 # ---------------------------------------------
 
-# Función universal ultra compatible para Android / MT Manager
+# Función universal ultra compatible (Incluye rutas de Termux y Root)
 enviar_web() {
     local url="$1"
     local data="$2"
     
-    # 1. Intentar con curl
+    # 1. Intentar con curl del sistema o Termux
     if command -v curl >/dev/null 2>&1; then
+        _curl="curl"
+    elif [ -x /data/data/com.termux/files/usr/bin/curl ]; then
+        _curl="/data/data/com.termux/files/usr/bin/curl"
+    fi
+
+    if [ -n "$_curl" ]; then
         if [ -n "$data" ]; then
-            curl -s -X POST "$url" -d "$data"
+            "$_curl" -s -X POST "$url" -d "$data"
         else
-            curl -s "$url"
+            "$_curl" -s "$url"
         fi
         return 0
     fi
 
-    # 2. Intentar con wget estándar
+    # 2. Intentar con wget del sistema o Termux
     if command -v wget >/dev/null 2>&1; then
+        _wget="wget"
+    elif [ -x /data/data/com.termux/files/usr/bin/wget ]; then
+        _wget="/data/data/com.termux/files/usr/bin/wget"
+    fi
+
+    if [ -n "$_wget" ]; then
         if [ -n "$data" ]; then
-            wget -qO- --post-data="$data" "$url"
+            "$_wget" -qO- --post-data="$data" "$url"
         else
-            wget -qO- "$url"
+            "$_wget" -qO- "$url"
         fi
         return 0
     fi
 
-    # 3. Intentar con busybox wget
+    # 3. Intentar con BusyBox en rutas comunes de Root
     if busybox wget --help >/dev/null 2>&1; then
-        if [ -n "$data" ]; then
-            busybox wget -qO- --post-data="$data" "$url"
-        else
-            busybox wget -qO- "$url"
-        fi
-        return 0
+        _bb="busybox"
     elif [ -x /system/xbin/busybox ]; then
-        if [ -n "$data" ]; then
-            /system/xbin/busybox wget -qO- --post-data="$data" "$url"
-        else
-            /system/xbin/busybox wget -qO- "$url"
-        fi
-        return 0
+        _bb="/system/xbin/busybox"
     elif [ -x /system/bin/busybox ]; then
+        _bb="/system/bin/busybox"
+    elif [ -x /sbin/busybox ]; then
+        _bb="/sbin/busybox"
+    fi
+
+    if [ -n "$_bb" ]; then
         if [ -n "$data" ]; then
-            /system/bin/busybox wget -qO- --post-data="$data" "$url"
+            "$_bb" wget -qO- --post-data="$data" "$url"
         else
-            /system/bin/busybox wget -qO- "$url"
+            "$_bb" wget -qO- "$url"
         fi
         return 0
     fi
 
-    # 4. Toybox wget alternativo para Android
+    # 4. Toybox alternativo de Android
     if command -v toybox >/dev/null 2>&1; then
         toybox wget -qO- "$url" 2>/dev/null
         return 0
