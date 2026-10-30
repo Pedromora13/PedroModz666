@@ -1,7 +1,7 @@
 #!/system/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN ONLINE ---
-VERSION_ACTUAL="1.2.5"
+VERSION_ACTUAL="1.2.6"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt"
 URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh"
 URL_KEYS="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/keys.txt"
