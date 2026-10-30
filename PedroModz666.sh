@@ -1,34 +1,59 @@
 #!/system/bin/sh
 
 # --- CONFIGURACIÓN DE ACTUALIZACIÓN ONLINE ---
-VERSION_ACTUAL="1.2.5"
+VERSION_ACTUAL="1.2.6"
 URL_VERSION="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/version.txt"
 URL_SCRIPT="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/PedroModz666.sh"
 URL_KEYS="https://raw.githubusercontent.com/Pedromora13/PedroModz666/main/keys.txt"
 # ---------------------------------------------
 
-# Función universal para peticiones web en MT Manager
+# Función universal mejorada para peticiones web en Android / MT Manager
 enviar_web() {
-    url="$1"
-    data="$2"
+    local url="$1"
+    local data="$2"
+    
+    # Intentar con curl
     if command -v curl >/dev/null 2>&1; then
         if [ -n "$data" ]; then
             curl -s -X POST "$url" -d "$data"
         else
             curl -s "$url"
         fi
-    elif command -v wget >/dev/null 2>&1; then
+        return 0
+    fi
+
+    # Intentar con wget estándar
+    if command -v wget >/dev/null 2>&1; then
         if [ -n "$data" ]; then
             wget -qO- --post-data="$data" "$url"
         else
             wget -qO- "$url"
         fi
-    elif busybox wget --help >/dev/null 2>&1; then
+        return 0
+    fi
+
+    # Intentar con busybox wget directamente si está en el PATH
+    if busybox wget --help >/dev/null 2>&1; then
         if [ -n "$data" ]; then
             busybox wget -qO- --post-data="$data" "$url"
         else
             busybox wget -qO- "$url"
         fi
+        return 0
+    elif [ -x /system/xbin/busybox ]; then
+        if [ -n "$data" ]; then
+            /system/xbin/busybox wget -qO- --post-data="$data" "$url"
+        else
+            /system/xbin/busybox wget -qO- "$url"
+        fi
+        return 0
+    elif [ -x /system/bin/busybox ]; then
+        if [ -n "$data" ]; then
+            /system/bin/busybox wget -qO- --post-data="$data" "$url"
+        else
+            /system/bin/busybox wget -qO- "$url"
+        fi
+        return 0
     fi
 }
 
@@ -100,10 +125,16 @@ while [ "$intentos" -lt "$INTENTOS_MAXIMOS" ]; do
         exit 1
     fi
     
-    # Busca si la key existe exacta en alguna línea
-    LINEA_MATCH=$(echo "$LISTA_KEYS" | grep -E "^${password}(\\||$)" | head -n 1)
+    # Búsqueda segura de la key ignorando espacios vacíos
+    KEY_ENCONTRADA=0
+    for key_val in $LISTA_KEYS; do
+        if [ "$password" = "$key_val" ]; then
+            KEY_ENCONTRADA=1
+            break
+        fi
+    done
 
-    if [ -n "$password" ] && [ -n "$LINEA_MATCH" ]; then
+    if [ -n "$password" ] && [ "$KEY_ENCONTRADA" -eq 1 ]; then
         # Notificación a Telegram indicando el uso de la key correcta
         MSG_TG="👀 USO DE SCRIPT: Key correcta usada: $password"
         enviar_web "https://api.telegram.org/bot$TOKEN_BOT/sendMessage" "chat_id=$TU_CHAT_ID&text=$MSG_TG" > /dev/null 2>&1
